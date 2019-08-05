@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="./src/js/jquery-3.4.1.js"></script>
+    </head>
+  <body>
+    <div class="videoTimeDuration">0</div>
+    <div class="videoInformations"></div>
+    <div id="player"></div>
+    <div class="videoLyrics1"></div>
+    <div class="videoLyrics2"></div>
+    <div class="videoLyrics3"></div>
+
+    <script>
+      var tag = document.createElement('script');
+
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      var player;
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          height: '360',
+          width: '640',
+          videoId: '67HeYtezfF4',
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': getVideoTime
+          }
+        });
+      }
+
+    function videoInformations() {
+        $.getJSON("./assets/json/67HeYtezfF4.json", function(data) {
+            // console.log(data[varGetVideoTime]);
+            // $(".videoLyrics1").html(data[varGetVideoTime - 1]);
+            $(".videoInformations").html(data["artist"] + " - " + data["title"]);
+            // $(".videoLyrics3").html(data[varGetVideoTime + 1]);
+        });
+    }
+
+    videoInformations();
+
+    var varGetVideoTime = 0;
+    function getVideoTime() {
+        varGetVideoTime = player.getCurrentTime();
+        varGetVideoTime = Math.trunc(varGetVideoTime);
+        $(".videoTimeDuration").html(varGetVideoTime);
+        displayLyrics(varGetVideoTime);
+        setTimeout(getVideoTime, 500);
+    }
+
+    function displayLyrics(varGetVideoTime) {
+        $.getJSON("./assets/json/67HeYtezfF4.json", function(data) {
+            // console.log(data[varGetVideoTime]);
+            // $(".videoLyrics1").html(data[varGetVideoTime - 1]);
+            $(".videoLyrics2").html(data[varGetVideoTime]);
+            // $(".videoLyrics3").html(data[varGetVideoTime + 1]);
+        });
+    }
+
+      function onPlayerReady(event) {
+        event.target.playVideo();
+      }
+
+      var done = false;
+      function onPlayerStateChange(event) {
+        if (event.data == YT.PlayerState.PLAYING && !done) {
+          setTimeout(stopVideo, 6000);
+          done = true;
+        }
+      }
+      function stopVideo() {
+        player.stopVideo();
+      }
+    </script>
+  </body>
+</html>
